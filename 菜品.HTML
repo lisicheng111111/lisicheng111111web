@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>灌阳每周菜品</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--main:#ff6b6b;--bg:#f5f7fa;--card:#fff;--text:#333}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--text)}
+header{background:var(--main);color:#fff;text-align:center;padding:20px 10px}
+header h1{font-size:28px;letter-spacing:1px}
+.week-section{padding:30px 20px}
+.week-title{font-size:22px;font-weight:bold;margin-bottom:20px;text-align:center}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.card{background:var(--card);border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.1);padding:16px;display:flex;flex-direction:column;gap:10px}
+.day-title{font-size:20px;font-weight:bold;color:var(--main)}
+.meal-title{font-size:16px;font-weight:bold;margin-top:6px}
+.dish-list{font-size:14px;line-height:1.6;list-style:none}
+.dish-list li{margin-bottom:4px}
+.tag{display:inline-block;background:#eef2f7;border-radius:4px;padding:2px 6px;margin-right:4px;font-size:12px;color:#555}
+footer{text-align:center;font-size:12px;color:#999;padding:20px}
+@media(max-width:600px){.card-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>灌阳每周菜品</h1>
+  <p id="weekInfo"></p>
+</header>
+
+<section class="week-section">
+  <div class="card-grid" id="menuGrid"></div>
+</section>
+
+<footer>© 灌阳食堂 · 每周六上午 9:00 自动更新</footer>
+
+<script>
+/* ---------- 菜谱 ---------- */
+const meat = ["红烧猪蹄","黄豆烧猪手","莲藕虎皮猪蹄","杂菇烧猪手","白萝卜烧猪手","冬菜白浇猪手","香菇烧猪手","手抓猪蹄","花生米回味猪蹄","五香猪手","青椒炒卤猪蹄","花生烧猪手","笋干烧猪手","油豆腐焖猪蹄","腌菜焖猪蹄","土豆烧猪蹄","梅菜扣肉","香芋扣肉","豆角干扣肉","萝卜干红烧肉","毛家红烧肉","腌菜红烧肉","土豆红烧肉","油豆腐烧肉","笋干红烧肉","红烧猪尾","鹌鹑蛋烧猪尾","芋仔蒸排骨","清蒸排骨","豆豉蒸排骨","红烧排骨","米粉排骨","萝卜炒排骨","青椒炒排骨","孜然香辣排骨","土豆烧排骨","红椒蒜苗炒排骨","茶树菇炒排骨","杂菇炒排骨","洋葱炒排骨","豆豉辣椒炒排骨","莲藕烧排骨","西芹木耳炒排骨","蒜香排骨","鱼香肉丝","西芹炒肉","冬笋炒肉","湘味小炒肉","杂菇炒肉","木耳荷兰豆炒肉","荷兰豆炒香肠","青豆炒肉丁","毛豆肉丁","青瓜玉米肉丁","四季豆炒肉丁","黄瓜玉米肉丁","香菇炒肉","杏鲍菇炒肉","菜头炒肉","豆干炒肉","腐竹炒肉","茶树菇萝卜炒肉","滑菇炒肉","小炒豆腐炒肉","菜头炒腊肉","辣椒炒肉","木耳炒肉","茄子炒肉","芹菜炒肉丝","莴笋炒肉丝","榨菜炒肉丝","土豆炒肉丝","青椒炒肉丝","芥兰梗炒肉丝","春笋炒肉丝","川味回锅肉","蒜苗回锅肉","青椒回锅肉","豆干回锅肉","酸菜炒回锅肉","酸菜炒烧皮肉","青椒大蒜炒烧皮肉","青椒炒拆骨肉","酸菜炒卤猪脸","芹菜炒猪头肉","蒜苗炒猪头肉","辣子杏鲍菇炒猪头肉","西芹辣椒炒猪头肉","泡椒白菜梗炒猪头肉","杏鲍菇炒腊肉","青椒炒五花肉","白萝卜炒五花肉","包菜炒五花肉","笋干炒五花肉","空心菜梗炒油渣","萝卜干炒油渣","白菜梗炒油渣","酸菜炒肉皮","孜然洋葱炒猪心","青椒炒卤味猪心","酸菜炒猪心","芹菜炒猪心","二荆条仔姜炒猪心","辣子蒜苔炒猪心","脆瓜炒猪心","脆笋炒猪心","麻辣大蒜子猪心","青椒蒜苗炒卤猪耳朵","油豆腐丝炒卤猪耳朵","小米辣炒猪耳","香菜拌卤猪耳朵","芹菜木耳炒猪耳朵","笋丝炒猪耳朵","青椒豆干炒猪耳","洋葱炒猪耳","野山椒炒猪肝","孜然猪肝","干红椒大蒜子爆炒猪肝","蒜苗炒猪肝","麻辣洋葱猪肝","酸豆角炒猪肝","洋葱辣子猪肝","黄瓜炒猪肝","酸萝卜炒小肚丝","红油小肚丝","豆干炒小肚丝","爆炒猪肚","酸菜炒脆肚","笋干炒小肚丝","芹菜炒猪肚","酸菜炒大肠","尖椒洋葱炒肥肠","干锅肥肠","老干妈青椒炒大肠","青椒大蒜炒卤肥肠","香酥肥肠","干红椒香干肥肠","苦瓜木耳肥肠","脆笋炒舌头","青椒大蒜炒舌头","酸黄瓜炒舌头","酸菜炒卤舌头","酸豆角炒花肠","爆炒花肠","萝卜烧猪腩","洋葱牛腩粒","香辣牛腩粒","黑椒洋葱牛肉粒","萝卜烧牛腩","支竹烧牛腩","番茄炒牛腩","香菇大蒜子炒牛腩","沙钵牛腩","黑椒牛仔骨","春笋炒牛肉","小炒黄牛肉","京葱爆炒牛肉","青椒大蒜炒熟牛肉","野山椒炒牛肉","芹菜炒牛肉","胡萝卜洋葱炒卤牛肉","二荆条孜然牛肉","麻辣牛杂","萝卜泡椒炒牛杂","剁椒黄豆芽牛百叶","二荆条泡椒炒牛肚","酸菜泡椒炒牛杂","香辣牛排","春笋山羊肉","红焖羊肉","笋干炒羊肉","萝卜羊棒骨","京葱炒羊肉","彩椒洋葱炒羊肉片","蒜香羊排","萝卜焖羊肉","二荆条酸菜炒羊肚","辣子孜然羊肉","原味羊肉","仔姜炒仔鸡","四川辣子鸡","黄焖鸡","酸萝卜炒鸡块","麻辣仔鸡","二荆条炒鸡块","辣子花生炒鸡","蒜苗炒鸡块","青红椒洋葱炒鸡块","广东猪肚鸡","香辣剁椒炒鸡","宫保鸡丁","莲藕炒鸡丁","蒜香蒸鸡","红烧土鸡公","茶树菇洋葱炒鸡","五香卤鸡腿","脆炸鸡腿","青椒大蒜炒卤凤爪","可乐鸡翅","椒盐鸡腿","芹菜木耳炒仔鸡","香菇炒鸡","辣椒西芹炒鸡","香菇烧鸡","广东白切鸡","菜籽油木耳炒鸡","土豆炒鸡块","大蒜子辣椒炒鸡块","红椒炒鸡翅","红焖鸡翅","二荆条大蒜子炒鸡翅","小米辣西芹炒鸡翅","香辣鸡翅","酸菜炒鸡杂","酸豆角炒鸡胗","咸菜泡椒炒鸡杂","土鸡火锅","雪豆炒血鸭","爆炒鸭脯肉","猪肚焖鸭","白萝卜炒鸭子","青椒炒鸭脯肉","姜蒜炒碎鸭","啤酒鸭","浇汁白卤鸭","青椒萝卜炒鸭子","仔姜炒仔鸭","西葫芦炒鸭脯肉","苦瓜炒鸭子","干辣椒芹菜炒烤鸭","尖椒炒烤鸭","大蒜辣椒炒烤鸭","胡萝卜木耳炒烤鸭","蒜苔炒烤鸭","青椒炒鸭脯肉","香菜拌卤鸭","芹菜炒回锅鸭","生爆鸭脯肉","胡萝卜蒜苗炒鸭子","茶树菇烧鸭","芹菜炒鸭脯肉","西芹泡椒炒鸭杂","酸菜香辣鸭肠","脆瓜炒鹅肠","酸菜泡椒炒鸭胗","辣子姜葱爆鸭胗","小米辣肥姜炒鸭胗","老干妈洋葱炒鸭杂","清蒸淡水鱼","豆豉干炸鱼","清蒸鲈鱼","清蒸多宝鱼","清蒸海昌鱼","红烧海鲈鱼","干炸秋刀鱼","豆豉辣椒蒸秋刀鱼","剁椒蒸秋刀鱼","啤酒辣子鱼块","香煎秋刀鱼","辣子孜然秋刀鱼","荷包蛋焖鱼块","炸腐竹炒鱼","酸菜炒鱼块","剁椒皖鱼块","炒小江鱼","豆腐黄焖鱼","油豆腐炒鱼块","剁椒鱼头","鱼头焖豆腐","辣椒红烧鱼块","青椒大蒜炒虾米","韭菜炒河虾","椒盐虾","麻辣牛蛙","洋葱炒牛蛙","仔姜炒牛蛙","爆炒花甲","麻辣小龙虾","香辣小龙虾","蒜蓉小龙虾","海鲜大杂烩","捞汁海鲜"];
+const hotpot = ["土鸡汤锅","老鸭汤锅","鲜鱼汤锅","牛八宝","猪肚鸡","干锅牛排","干锅兔肉","干锅狗肉","醋血鸭"];
+const veg = ["炒时蔬","麻婆豆腐","酸辣土豆丝","红烧茄子","醋溜白菜","干煸四季豆","干煸豆角","生拍黄瓜","素炒萝卜丝","火腿玉米黄瓜三丁","素菜嫩南瓜","焖老南瓜","炒瓜苗","炒节瓜","虎皮青椒","香葱拌豆腐","清炒苦瓜","清炒丝瓜","西红柿炒蛋","黄瓜炒蛋","豆角炒蛋","韭菜炒蛋","苦瓜炒蛋","青椒炒蛋","蒸芙蓉蛋","青椒炒豆腐","青椒肉末","肉末冬瓜","酸炒红薯粉"];
+const soup = ["鱼头豆腐汤","车螺芥菜汤","鱼骨紫菜汤","鲫鱼豆腐汤","鱼头香菇豆腐汤","西红柿蛋汤","蔬菜蛋汤","包菜丝蛋汤","丝瓜蛋汤","香菇肉末蛋汤","金针菇蛋汤","黄花菜蛋汤","冬瓜鱼头汤","菠菜蛋汤","头骨玉米汤","头骨海带汤","海带黄豆大骨汤","头骨白萝卜汤","头骨淮山汤","头骨胡萝卜玉米汤","莲藕花生大骨汤","鸡骨架玉米汤","冬瓜头骨汤","枸杞叶猪肝汤","乌鸡汤","海带丝鸡肉汤","莲藕排骨汤","白菜豆腐肉沫汤","萝卜丝肉沫汤","虾皮冬瓜汤","茶树菇鸡骨架汤","黄豆猪蹄汤","冬瓜豆腐汤","萝卜鸡肉汤","虾米紫菜汤","花生米猪尾汤","芥菜虾皮汤","时蔬大骨汤","萝卜老鸭汤","番茄金针菇冬瓜汤","丸子紫菜汤","丸子冬瓜汤","平菇丸子汤","冬菇鸡肉汤","茶树菇鸡肉汤","香菇红萝卜排骨汤","豆芽肉沫汤","板栗鸡肉汤","三鲜菌菇汤","三鲜汤","青菜豆腐汤","猪血韭菜汤","竹荪干贝冬瓜汤"];
+
+/* ---------- 工具 ---------- */
+function getWeekNumber(d){
+  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+  const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function seededShuffle(arr,seed){
+  let s=seed;
+  const rand=()=>(s=(s*9301+49297)%233280,s/233280);
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(rand()*i);
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+/* ---------- 周六 09:00 为界 ---------- */
+function getMenuWeek(){
+  const now=new Date();
+  const day=now.getUTCDay();
+  const hour=now.getUTCHours();
+  const week=getWeekNumber(now);
+  return (day===6 && hour>=9) ? week+1 : week;
+}
+function buildWeek(seed){
+  const m=seededShuffle([...meat],seed);
+  const h=seededShuffle([...hotpot],seed+1);
+  const v=seededShuffle([...veg],seed+2);
+  const s=seededShuffle([...soup],seed+3);
+  const days=["周一","周二","周三","周四","周五"];
+  const menu=[];
+  for(const day of days){
+    // 午餐
+    const lunchHot=Math.random()<0.3;
+    const lunch={
+      mains:m.splice(0,lunchHot?2:3),
+      hotpot:lunchHot?h.shift():null,
+      veg:v.shift(),
+      soup:s.shift()
+    };
+    // 晚餐（永不出现干锅）
+    const dinner={
+      mains:m.splice(0,2),
+      hotpot:null,
+      veg:v.shift(),
+      soup:s.shift()
+    };
+    menu.push({day,lunch,dinner});
+  }
+  return menu;
+}
+function renderWeek(containerId,weekNum){
+  const week=buildWeek(weekNum);
+  const container=document.getElementById(containerId);
+  container.innerHTML='';
+  week.forEach(({day,lunch,dinner})=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <div class="day-title">${day}</div>
+      <div class="meal-title">午餐</div>
+      <ul class="dish-list">
+        ${lunch.mains.map(d=>`<li>${d}</li>`).join('')}
+        ${lunch.hotpot?`<li><span class="tag">干锅</span>${lunch.hotpot}</li>`:''}
+        <li><span class="tag">素</span>${lunch.veg}</li>
+        <li><span class="tag">汤</span>${lunch.soup}</li>
+      </ul>
+      <div class="meal-title">晚餐</div>
+      <ul class="dish-list">
+        ${dinner.mains.map(d=>`<li>${d}</li>`).join('')}
+        <li><span class="tag">素</span>${dinner.veg}</li>
+        <li><span class="tag">汤</span>${dinner.soup}</li>
+      </ul>`;
+    container.appendChild(card);
+  });
+}
+/* ---------- 主程序 ---------- */
+const weekNum=getMenuWeek();
+document.getElementById('weekInfo').textContent=`第 ${weekNum} 周 · ${new Date().getFullYear()}`;
+renderWeek('menuGrid',weekNum);
+</script>
+</body>
+</html>
